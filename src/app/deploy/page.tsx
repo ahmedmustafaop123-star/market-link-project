@@ -1,7 +1,16 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import Link from "next/link";
 import { Brand } from "@/components/app-shell";
 
 export const metadata = { title: "Run locally / Hosting" };
+
+// The download packages are written into public/ by scripts/package-*.cjs. Inside an already
+// packaged copy the full-project zip is not present (a package cannot contain itself), so only
+// offer the buttons whose file really exists on this server.
+export const dynamic = "force-dynamic";
+
+const downloadable = (file: string) => existsSync(path.join(process.cwd(), "public", file));
 
 function Code({ children }: { children: string }) {
   return <pre className="mt-2 overflow-x-auto rounded-xl bg-brand-950 p-3 text-xs leading-6 text-emerald-200">{children}</pre>;
@@ -35,6 +44,9 @@ function Option({ tag, title, time, children }: { tag: string; title: string; ti
 }
 
 export default function DeployPage() {
+  const hasProjectZip = downloadable("MarketLink-AgriHub-Pakistan.zip");
+  const hasDatabaseZip = downloadable("MarketLink-Database.zip");
+  const hasPdf = downloadable("MarketLink-AgriHub-Complete.pdf");
   return (
     <div className="min-h-screen">
       <header className="pk-pattern relative bg-brand-900">
@@ -46,9 +58,16 @@ export default function DeployPage() {
           <h1 className="text-3xl font-extrabold sm:text-4xl">Run MarketLink on your own PC</h1>
           <p className="mt-2 max-w-2xl text-white/80">You only need Node.js. The database is built in, so there&apos;s no PostgreSQL or Docker to install. Tables and Pakistani demo data are created automatically.</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <a href="/MarketLink-AgriHub-Pakistan.zip" className="btn bg-gold-400 px-5 py-3 text-base text-brand-950 hover:bg-gold-300">⬇ Download complete project folder (.zip)</a>
+            {hasProjectZip ? (
+              <a href="/MarketLink-AgriHub-Pakistan.zip" className="btn bg-gold-400 px-5 py-3 text-base text-brand-950 hover:bg-gold-300">⬇ Download complete project folder (.zip)</a>
+            ) : (
+              <span className="btn bg-emerald-500/20 px-5 py-3 text-base text-white ring-1 ring-emerald-300/40">✅ You are already running the project folder</span>
+            )}
+            {hasDatabaseZip && (
+              <a href="/MarketLink-Database.zip" className="btn bg-white/10 px-5 py-3 text-base text-white ring-1 ring-white/30 hover:bg-white/20">🗄️ Download database folder only (.zip)</a>
+            )}
             <a href="https://nodejs.org" target="_blank" rel="noreferrer" className="btn bg-white/10 px-5 py-3 text-base text-white ring-1 ring-white/30 hover:bg-white/20">⬇ Get Node.js (LTS)</a>
-            <a href="/MarketLink-AgriHub-Complete.pdf" target="_blank" className="btn bg-white/10 px-5 py-3 text-base text-white ring-1 ring-white/30 hover:bg-white/20">📄 Project PDF</a>
+            {hasPdf && <a href="/MarketLink-AgriHub-Complete.pdf" target="_blank" className="btn bg-white/10 px-5 py-3 text-base text-white ring-1 ring-white/30 hover:bg-white/20">📄 Project PDF</a>}
           </div>
         </div>
       </header>
@@ -72,7 +91,7 @@ export default function DeployPage() {
               Go to <a className="font-semibold text-brand-700 underline" href="https://nodejs.org" target="_blank" rel="noreferrer">nodejs.org</a>, click the green <b>LTS</b> button and install with the default options.
             </Step>
             <Step n={2} title="Download and extract the source code">
-              Download the <a className="font-semibold text-brand-700 underline" href="/MarketLink-AgriHub-Pakistan.zip">complete project folder (.zip)</a>, right-click it and choose <b>Extract All</b>. You get one folder, <b>MarketLink-AgriHub-Pakistan</b>, with the source code, start files, PDF, SQL scripts and guides. Open <b>START-HERE.html</b> inside it first.
+              Download the{hasProjectZip ? " " : " "}{hasProjectZip ? <a className="font-semibold text-brand-700 underline" href="/MarketLink-AgriHub-Pakistan.zip">complete project folder (.zip)</a> : <b>complete project folder</b>} (the download link is on the page you received it from; this copy is already extracted), right-click it and choose <b>Extract All</b>. You get one folder, <b>MarketLink-AgriHub-Pakistan</b>, with the source code, start files, PDF, SQL scripts and guides. Open <b>START-HERE.html</b> inside it first.{hasDatabaseZip ? <> The <a className="font-semibold text-brand-700 underline" href="/MarketLink-Database.zip">database-only package (.zip)</a> contains just the PostgreSQL/MySQL schema, ERD and table reference.</> : null}
             </Step>
             <Step n={3} title="Double-click the start file">
               <b>Windows:</b> <code>start-windows.bat</code> · <b>Mac / Linux:</b> run <code>bash start.sh</code> in Terminal. The first run installs and builds (3-6 min); later runs take a few seconds.

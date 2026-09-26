@@ -56,7 +56,9 @@ fs.rmSync(STAGE_PARENT, { recursive: true, force: true });
 fs.mkdirSync(STAGE, { recursive: true });
 
 /* ---------------- 2. application source (runs from the folder root) ---------------- */
-const skip = (rel) => !/\.zip$/.test(rel) && !rel.includes("node_modules") && !rel.startsWith(".next") && !rel.startsWith(".data");
+// Keep the database-only package (public/MarketLink-Database.zip) inside the folder so the /deploy
+// page's download button also works offline; never copy a previously built full-project zip.
+const skip = (rel) => !/MarketLink-AgriHub-Pakistan\.zip$/.test(rel) && !rel.includes("node_modules") && !rel.startsWith(".next") && !rel.startsWith(".data");
 ["src", "public", "database", "scripts"].forEach((d) => copy(d, path.join(STAGE, d), skip));
 [
   "package.json", "package-lock.json", "tsconfig.json", "next.config.ts", "drizzle.config.json", "postcss.config.mjs", "eslint.config.mjs",
@@ -68,6 +70,7 @@ try { fs.chmodSync(path.join(STAGE, "start.sh"), 0o755); } catch {}
 
 /* ---------------- 3. Documentation folder ---------------- */
 const DOC = "Documentation";
+copy("Documentation", path.join(STAGE, DOC)); // hand-written reports (final audit etc.)
 copy("public/MarketLink-AgriHub-Complete.pdf", path.join(STAGE, DOC, "1-MarketLink-Complete-Project-Book.pdf"));
 write(`${DOC}/2-Database-Schema-PostgreSQL.sql`, POSTGRES_DDL.replace(/--> statement-breakpoint\n?/g, ""));
 write(`${DOC}/3-Database-Schema-MySQL.sql`, docs.MYSQL_DDL);
