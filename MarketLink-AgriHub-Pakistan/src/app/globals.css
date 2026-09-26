@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Pakistan flag green scale (#01411C) */
+  --color-brand-50: #edfbf2;
+  --color-brand-100: #d3f5df;
+  --color-brand-200: #a9e9c3;
+  --color-brand-300: #72d59f;
+  --color-brand-400: #3dba78;
+  --color-brand-500: #1d9d5c;
+  --color-brand-600: #117e48;
+  --color-brand-700: #0d653b;
+  --color-brand-800: #0b5030;
+  --color-brand-900: #01411c;
+  --color-brand-950: #002611;
+  --color-gold-300: #f7d774;
+  --color-gold-400: #f1c232;
+  --color-gold-500: #d9a514;
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-[#f6f8f4] text-slate-900 dark:bg-[#07130d] dark:text-slate-100;
+}
+
+[dir="rtl"] body {
+  font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", var(--font-sans);
+}
+
+@utility card {
+  @apply rounded-2xl border border-brand-900/8 bg-white shadow-[0_1px_2px_rgba(1,65,28,0.04),0_4px_16px_-4px_rgba(1,65,28,0.08)] dark:border-white/8 dark:bg-[#0d1f16];
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+}
+@utility btn-secondary {
+  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700;
+}
+@utility btn-danger {
+  @apply btn bg-rose-600 text-white hover:bg-rose-700;
+}
+@utility btn-amber {
+  @apply btn bg-amber-500 text-white hover:bg-amber-600;
+}
+@utility input {
+  @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100;
+}
+@utility label {
+  @apply mb-1 block text-xs font-semibold tracking-wide text-slate-600 uppercase dark:text-slate-400;
+}
+@utility badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize;
+}
+@utility table-head {
+  @apply border-b border-slate-200 bg-slate-50/80 text-left text-[11px] font-semibold tracking-wider text-slate-500 uppercase dark:border-white/5 dark:bg-white/[0.03] dark:text-slate-400;
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-slide-in { animation: slide-in-right 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.animate-fade-in { animation: fade-in 0.25s ease-out; }
+.animate-pop { animation: pop 0.45s ease-out; }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 60s linear infinite; }
+.animate-marquee:hover { animation-play-state: paused; }
+[dir="rtl"] .animate-marquee { animation-direction: reverse; }
+
+/* Subtle crescent & star pattern on green surfaces.
+   Rendered as a ::before overlay (inside the components layer) so it never
+   overrides the element's own background colour / gradient utilities. */
+@layer components {
+  .pk-pattern {
+    isolation: isolate;
+  }
+  .pk-pattern::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M30 18a14 14 0 1 0 12 22 11 11 0 1 1 0-18 14 14 0 0 0-12-4z'/%3E%3Cpath d='M52 22l2 5h5l-4 3 2 5-5-3-4 3 1-5-4-3h5z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+}

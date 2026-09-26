@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>START HERE: MarketLink Agri-Hub Pakistan</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:#f6f8f4;color:#0f172a;line-height:1.55}
+header{background:#01411c;color:#fff;padding:36px 24px 44px;border-bottom:6px solid #f1c232}
+.wrap{max-width:980px;margin:0 auto}h1{margin:0;font-size:34px}header p{color:#d3f5df;margin:.4em 0 0}
+.ur{font-size:20px;color:#f7d774;direction:rtl;margin-top:8px}
+main{padding:28px 24px 60px}.card{background:#fff;border:1px solid #e3ebe5;border-radius:18px;padding:22px 24px;margin:0 0 18px;box-shadow:0 4px 16px -8px rgba(1,65,28,.15)}
+h2{margin:0 0 12px;color:#01411c;font-size:20px}.warn{background:#fffbeb;border-color:#fcd34d}
+ol{padding-left:22px}li{margin:6px 0}code,kbd{background:#edfbf2;border:1px solid #cfe9d8;border-radius:6px;padding:1px 6px;font-family:Consolas,monospace;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}td{padding:8px 6px;border-bottom:1px solid #eef2ef;vertical-align:top}td:first-child{font-weight:600;white-space:nowrap;padding-right:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.pill{background:#01411c;color:#fff;border-radius:14px;padding:14px 16px}
+.pill b{color:#f1c232;display:block}.pill span{font-size:13px;color:#d3f5df}a{color:#0d653b;font-weight:600}
+.term{background:#002611;color:#a9e9c3;border-radius:12px;padding:14px 16px;font-family:Consolas,monospace;font-size:13px;white-space:pre;overflow:auto}
+footer{text-align:center;color:#64748b;font-size:13px;padding:20px}
+</style></head><body>
+<header><div class="wrap">
+<div style="display:inline-flex;align-items:center;gap:12px;background:white;border-radius:14px;padding:8px 16px;margin-bottom:18px"><img src="public/brand/marketlink-logo.svg" width="305" height="72" alt="MARKETLINK AGRI-HUB" style="display:block;max-width:78vw;height:auto"></div>
+<h1>MARKETLINK AGRI-HUB</h1>
+<p>B2B agricultural marketplace: farmers ↔ wholesalers, supermarkets, exporters & food processors. PKR · per-maund mandi rates · escrow · truck tracking.</p>
+<div class="ur">کسان سے خریدار تک — براہِ راست</div>
+</div></header>
+<main class="wrap">
+
+<div class="card warn"><h2>⚠️ Important</h2>
+<b>http://localhost:3000</b> only works <b>after</b> you start the server (steps below) and <b>while its black window stays open</b>.
+Also: extract this folder from the zip first, because it can't run from inside the zip.</div>
+
+<div class="card"><h2>▶️ Run the website on this PC (4 steps)</h2>
+<ol>
+<li>Install <b>Node.js 20 LTS</b> or newer from <a href="https://nodejs.org" target="_blank">nodejs.org</a> (one time, default options).</li>
+<li><b>Windows:</b> double-click <code>start-windows.bat</code> &nbsp;·&nbsp; <b>Mac/Linux:</b> open Terminal here and run <code>bash start.sh</code></li>
+<li>First run installs & builds (3-6 minutes). Wait for <b>✅ MarketLink is running!</b></li>
+<li>Your browser opens <a href="http://localhost:3000">http://localhost:3000</a> automatically. Keep the window open; press <kbd>Ctrl</kbd>+<kbd>C</kbd> to stop.</li>
+</ol>
+<div class="term">══════════════════════════════════════════
+  ✅ MarketLink is running!
+  On this computer:   http://localhost:3000
+  Phone / same Wi-Fi: http://192.168.x.x:3000
+══════════════════════════════════════════</div>
+<p style="font-size:14px;color:#475569">No PostgreSQL needed: a built-in database is created automatically in the <code>.data</code> folder, with Pakistani demo data.</p>
+</div>
+
+<div class="card"><h2>🗄️ Connect PostgreSQL on your laptop (optional)</h2>
+<ol>
+<li>Install PostgreSQL with pgAdmin from <a href="https://www.postgresql.org/download/" target="_blank">postgresql.org/download</a>. Remember the <code>postgres</code> password; keep port <code>5432</code>.</li>
+<li>Open <code>.env</code> in this folder (copy <code>.env.example</code> if missing) and set:<br><code>DATABASE_URL=postgresql://postgres:YOUR_POSTGRES_PASSWORD@127.0.0.1:5432/app_db</code></li>
+<li>In a terminal here run <code>node scripts/check-db.cjs --create</code>, then run <code>start-windows.bat</code> again. The website creates tables on the first visit.</li>
+<li>In pgAdmin open <b>Databases → app_db → Schemas → public → Tables</b> and refresh. You can now inspect <code>users</code>, <code>crops_inventory</code> and <code>orders_logistics</code>.</li>
+</ol>
+<p style="font-size:13px;color:#64748b">Existing built-in data stays in <code>.data/pglite</code> but does not move into the new PostgreSQL database automatically. The cloud preview is a separate database.</p>
+</div>
+
+<div class="card"><h2>🔑 Logins (password: <code>password123</code>)</h2>
+<div class="grid">
+<div class="pill"><b>🛡️ Admin panel</b>ahmed.mustafa@admin.com<br><span>Open <a style="color:#f7d774" href="http://localhost:3000/admin-login">localhost:3000/admin-login</a></span></div>
+<div class="pill"><b>🔬 Inspector</b>inspector@marketlink.pk<br><span>Quality lab desk</span></div>
+<div class="pill"><b>🧑‍🌾 Farmer</b>farmer@marketlink.pk<br><span>Muhammad Aslam · Multan</span></div>
+<div class="pill"><b>🏢 Buyer</b>buyer@marketlink.pk<br><span>Qureshi Wholesale · Lahore</span></div>
+</div>
+<p style="font-size:14px">After signing in as admin, change the password in <b>⚙️ Account settings</b>. All demo accounts: <a href="Documentation/8-Demo-Accounts.txt">Documentation/8-Demo-Accounts.txt</a></p>
+</div>
+
+<div class="card"><h2>📁 What's in this folder</h2><table>
+<tr><td>📄 START-HERE.html</td><td>This page</td></tr>
+<tr><td>▶️ start-windows.bat</td><td>Double-click to run on Windows</td></tr>
+<tr><td>▶️ start.sh</td><td>Run on Mac / Linux: bash start.sh</td></tr>
+<tr><td>🐳 start-docker.bat</td><td>Run with Docker (optional)</td></tr>
+<tr><td>📘 README.md</td><td>Full setup & hosting instructions</td></tr>
+<tr><td>📁 Documentation/</td><td>PDF project book, SQL scripts, API, workflows, ERD, admin guide, demo accounts</td></tr>
+<tr><td>📁 src/</td><td>Application source code: pages, dashboards, REST API, business logic</td></tr>
+<tr><td>📁 database/</td><td>Database DDL scripts (PostgreSQL + MySQL)</td></tr>
+<tr><td>📁 public/</td><td>Images and downloadable files</td></tr>
+<tr><td>📁 scripts/</td><td>Local server launcher, database checker, PDF & package generators</td></tr>
+<tr><td>🧪 scripts/check-db.cjs</td><td>Check .env connection and optionally create app_db</td></tr>
+<tr><td>🗄️ schema.sql / schema.mysql.sql</td><td>Database DDL: PostgreSQL (runtime) and MySQL 8, all 15 tables</td></tr>
+<tr><td>⚙️ .env.example</td><td>Settings: database, admin login, payment gateways, email/SMS, AI keys</td></tr>
+<tr><td>⚙️ package.json …</td><td>Project configuration (Next.js, Tailwind, Drizzle)</td></tr>
+<tr><td>☁️ Dockerfile, docker-compose.yml, render.yaml</td><td>Docker & free cloud hosting</td></tr>
+</table></div>
+
+<div class="card"><h2>📚 Documentation</h2><table>
+<tr><td><a href="Documentation/1-MarketLink-Complete-Project-Book.pdf">1-MarketLink-Complete-Project-Book.pdf</a></td><td>Complete project book: hosting guide, features, ERD & DDL, REST API, workflows, full source code</td></tr>
+<tr><td><a href="Documentation/2-Database-Schema-PostgreSQL.sql">2-Database-Schema-PostgreSQL.sql</a></td><td>PostgreSQL DDL (used by the app)</td></tr>
+<tr><td><a href="Documentation/3-Database-Schema-MySQL.sql">3-Database-Schema-MySQL.sql</a></td><td>MySQL 8 DDL (portable version)</td></tr>
+<tr><td><a href="Documentation/4-API-Endpoints.md">4-API-Endpoints.md</a></td><td>REST API endpoints with request/response JSON</td></tr>
+<tr><td><a href="Documentation/5-Business-Workflows.md">5-Business-Workflows.md</a></td><td>Bidding, escrow/order progression, mandi rate sync</td></tr>
+<tr><td><a href="Documentation/6-Database-ERD.md">6-Database-ERD.md</a></td><td>Entity relationship diagram & table purposes</td></tr>
+<tr><td><a href="Documentation/7-Admin-Guide.md">7-Admin-Guide.md</a></td><td>Admin panel: login, pages, custom admin password</td></tr>
+<tr><td><a href="Documentation/8-Demo-Accounts.txt">8-Demo-Accounts.txt</a></td><td>All demo logins</td></tr>
+</table></div>
+
+<div class="card"><h2>🌍 Share it online</h2>
+<table>
+<tr><td>Temporary public link</td><td>While running, in a 2nd terminal: <code>npx cloudflared tunnel --url http://localhost:3000</code> → share the https://….trycloudflare.com link</td></tr>
+<tr><td>Phone (same Wi-Fi)</td><td>Open the "Phone / same Wi-Fi" address shown in the black window</td></tr>
+<tr><td>Free cloud 24/7</td><td>Upload folder to GitHub → render.com → New → Blueprint (uses <code>render.yaml</code>)</td></tr>
+<tr><td>Docker</td><td>Double-click <code>start-docker.bat</code> (includes PostgreSQL)</td></tr>
+</table>
+<p style="font-size:14px">Full details: <a href="README.md">README.md</a></p>
+</div>
+
+<div class="card"><h2>🛠 Troubleshooting</h2><table>
+<tr><td>'node' is not recognized</td><td>Install Node.js, restart the PC, try again</td></tr>
+<tr><td>"This site can't be reached"</td><td>The server window is closed or still starting. Wait for ✅</td></tr>
+<tr><td>Port 3000 busy</td><td>Automatic: the window shows the port used (e.g. 3001)</td></tr>
+<tr><td>Fresh demo data</td><td>Stop the server, delete the <code>.data</code> folder, start again</td></tr>
+<tr><td>Edited the code</td><td>Run <code>start-windows.bat --rebuild</code></td></tr>
+</table></div>
+<div class="card"><h2>🔗 Online preview (temporary)</h2><a href="https://3000-iqo7khjgg9ma2clwbrfh0.e2b.app" target="_blank">https://3000-iqo7khjgg9ma2clwbrfh0.e2b.app</a></div>
+</main>
+<footer>MarketLink Agri-Hub Pakistan · Next.js · Tailwind CSS · PostgreSQL / PGlite · Drizzle ORM · Recharts · packaged 25/09/2026, 17:41:47 PKT</footer>
+</body></html>

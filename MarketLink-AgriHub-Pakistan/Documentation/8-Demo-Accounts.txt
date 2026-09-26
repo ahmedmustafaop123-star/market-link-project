@@ -1,0 +1,21 @@
+MarketLink Agri-Hub Pakistan: demo accounts (password for all: password123)
+
+ADMIN
+  ahmed.mustafa@admin.com        Ahmed Mustafa (Super Admin)     → /admin-login
+
+QUALITY INSPECTOR
+  inspector@marketlink.pk    Dr. Farhan Malik (Faisalabad)   → /inspector/dashboard
+
+FARMERS (KISAN)
+  farmer@marketlink.pk       Muhammad Aslam (Multan)         wheat, Chaunsa mango, cotton
+  rasool@marketlink.pk       Ghulam Rasool (Sahiwal)         basmati, maize, potato
+  tariq@marketlink.pk        Rana Tariq (Faisalabad)         sugarcane, wheat, chana (unverified)
+  bashir@marketlink.pk       Bashir Ahmed Soomro (Hyderabad) tomato, onion, mango, red chilli
+  nasreen@marketlink.pk      Nasreen Bibi (Okara)            potato, kinnow (unverified)
+  wahid@marketlink.pk        Abdul Wahid Baloch (Turbat)     dates (khajoor)
+
+BUYERS
+  buyer@marketlink.pk        Qureshi Wholesale Traders (Lahore)
+  metro@marketlink.pk        FreshMart Supermarket Supply (Karachi)
+  exports@marketlink.pk      Indus Agro Exports (Karachi)
+  processor@marketlink.pk    Punjab Food Processors Ltd (Faisalabad)
