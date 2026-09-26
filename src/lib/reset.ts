@@ -3,6 +3,7 @@ import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { authTokens, users } from "@/db/schema";
 import { ApiError } from "@/lib/api";
+import { publicOrigin } from "@/lib/base-url";
 import { emailConfigured, notify, sendEmail } from "@/lib/notify";
 import { hashPassword } from "@/lib/password";
 
@@ -19,12 +20,9 @@ function devLinksAllowed(role: string) {
   return !emailConfigured() && process.env.AUTH_DEV_LINKS !== "false" && role !== "admin" && role !== "inspector";
 }
 
-function baseUrl(req: Request) {
-  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
-  const h = req.headers;
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  return host ? `${h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https")}://${host}` : new URL(req.url).origin;
-}
+// Public origin is resolved centrally (request headers → validated env → loopback fallback),
+// so reset links always point at the host the user is actually browsing.
+const baseUrl = (req: Request) => publicOrigin(req);
 
 /** POST /api/auth/forgot-password: always returns the same message so account existence isn't revealed. */
 export async function requestPasswordReset(emailRaw: string, req: Request) {

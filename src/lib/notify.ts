@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { notifications, users } from "@/db/schema";
+import { envOriginInfo, observedPublicOrigin } from "@/lib/base-url";
 
 /**
  * Notification service
@@ -36,7 +37,9 @@ const escapeHtml = (value: string) =>
 
 function emailHtml(title: string, body: string, link: string | undefined, logoAttached: boolean) {
   const safeLink = link?.startsWith("/") && !link.startsWith("//") ? link : undefined;
-  const base = process.env.APP_URL?.replace(/\/$/, "");
+  // Prefer a configured APP_URL; otherwise fall back to the last public origin this server saw,
+  // so notification links never point at a bind address or a stale localhost default.
+  const base = envOriginInfo()?.origin ?? observedPublicOrigin() ?? undefined;
   const destination = safeLink && base ? escapeHtml(`${base}${safeLink}`) : null;
   const logo = logoAttached
     ? `<img src="cid:${LOGO_CID}" width="260" height="60" alt="${APP_NAME}" style="display:block;width:260px;max-width:100%;height:auto;border:0">`

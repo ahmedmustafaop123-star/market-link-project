@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { api, Badge, LoadingBlock, PageHeader, Spinner, StatCard } from "@/components/ui";
 import { useToast } from "@/components/providers";
+import { resolveBrowserRedirect } from "@/lib/base-url";
 import { formatDate, formatPKR, formatPKRShort } from "@/lib/constants";
 
 type Wallet = {
@@ -37,6 +38,18 @@ function submitForm(action: string, fields: Record<string, string>) {
   });
   document.body.appendChild(form);
   form.submit();
+}
+
+/**
+ * The API returns absolute URLs. Validate them before use and, if the server ever hands back a
+ * bind/loopback address (http://0.0.0.0:3000/…) while this page runs on a public origin, send the
+ * browser to the same path on this origin instead of failing with ERR_ADDRESS_INVALID.
+ */
+function safeTarget(raw: string): string {
+  const resolved = resolveBrowserRedirect(raw, window.location.origin);
+  if (!resolved.ok) throw new Error(resolved.error);
+  if (resolved.rewritten) console.warn(`[wallet] payment URL host was not reachable, using this origin instead: ${raw} → ${resolved.url}`);
+  return resolved.url;
 }
 
 export function WalletClient({ role }: { role: "farmer" | "buyer" }) {
@@ -92,8 +105,9 @@ export function WalletClient({ role }: { role: "farmer" | "buyer" }) {
     setBusy(true);
     try {
       const r = await api<{ redirectUrl?: string; form?: { action: string; fields: Record<string, string> } }>("/api/payments/checkout", { method: "POST", json: { provider, amount: Number(amount) } });
-      if (r.form) submitForm(r.form.action, r.form.fields);
-      else if (r.redirectUrl) window.location.href = r.redirectUrl;
+      if (r.redirectUrl) { window.location.assign(safeTarget(r.redirectUrl)); return; }
+      if (r.form) submitForm(safeTarget(r.form.action), r.form.fields);
+      else throw new Error("The payment gateway did not return a checkout link. Please try again.");
     } catch (e) {
       push({ kind: "error", title: "Could not start payment", body: (e as Error).message });
       setBusy(false);

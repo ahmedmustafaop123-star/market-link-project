@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { ApiError } from "@/lib/api";
+import { absoluteUrl, isValidHttpUrl, parseOriginInfo } from "@/lib/base-url";
 import { homeFor, startSession } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 import { unusablePasswordHash } from "@/lib/password";
@@ -22,14 +23,18 @@ const USERINFO_URL = () => process.env.GOOGLE_USERINFO_URL || "https://openidcon
 const SECRET = process.env.SESSION_SECRET || "marketlink-agri-hub-dev-secret-change-me";
 export const OAUTH_COOKIE = "ml_oauth";
 
-export function publicOrigin(req: Request) {
-  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
-  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
-  if (!host) return new URL(req.url).origin;
-  const proto = req.headers.get("x-forwarded-proto") ?? (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
-  return `${proto}://${host}`;
-}
-export const callbackUrl = (req: Request) => process.env.GOOGLE_CALLBACK_URL || `${publicOrigin(req)}/api/auth/google/callback`;
+/**
+ * Google requires the redirect URI to match the one registered in the Google console, so an
+ * explicit GOOGLE_CALLBACK_URL wins — but only when it is a well-formed, non-bind absolute URL.
+ * Otherwise the public origin of the current request is used (never the bind address).
+ */
+export const callbackUrl = (req: Request) => {
+  const configured = parseOriginInfo(process.env.GOOGLE_CALLBACK_URL ?? null);
+  if (configured && !configured.bind && isValidHttpUrl(process.env.GOOGLE_CALLBACK_URL)) {
+    return new URL(process.env.GOOGLE_CALLBACK_URL!.trim()).toString();
+  }
+  return absoluteUrl(req, "/api/auth/google/callback");
+};
 
 export type SignupRole = "buyer" | "farmer";
 export const safeNext = (n: string | null | undefined) => (n && n.startsWith("/") && !n.startsWith("//") && !n.startsWith("/api/") ? n : null);

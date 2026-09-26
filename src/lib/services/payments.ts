@@ -3,12 +3,12 @@ import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { paymentIntents, payoutRequests, users, walletTransactions } from "@/db/schema";
 import { ApiError } from "@/lib/api";
+import { absoluteUrl, isValidHttpUrl, publicOrigin } from "@/lib/base-url";
 import type { SessionUser } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 
 export type Provider = "stripe" | "jazzcash" | "easypaisa" | "sandbox";
 const r2 = (n: number) => Math.round(n * 100) / 100;
-const appUrl = (req?: Request) => (process.env.APP_URL || (req ? new URL(req.url).origin : "http://localhost:3000")).replace(/\/$/, "");
 const live = () => process.env.PAYMENTS_MODE === "live";
 
 export function providerStatus(): Record<Provider, { enabled: boolean; label: string; mode: string }> {
@@ -22,16 +22,34 @@ export function providerStatus(): Record<Provider, { enabled: boolean; label: st
 
 export type Checkout = { reference: string; redirectUrl?: string; form?: { action: string; fields: Record<string, string> } };
 
-/** Step 1: create a pending payment intent and hand the browser to the gateway. Wallet is credited ONLY by a verified callback. */
+/**
+ * Step 1: create a pending payment intent and hand the browser to the gateway.
+ * The wallet is credited ONLY by a verified callback.
+ * Every URL returned here is validated: it must be an absolute http(s) URL, so a bad request host
+ * or proxy header can never send the buyer to a bind address (ERR_ADDRESS_INVALID).
+ */
 export async function createCheckout(user: SessionUser, provider: Provider, amount: number, req: Request): Promise<Checkout> {
+  const checkout = await buildCheckout(user, provider, amount, req);
+  if (checkout.redirectUrl && !isValidHttpUrl(checkout.redirectUrl)) {
+    throw new ApiError(500, "Could not build a valid payment redirect URL. Please check the server's APP_URL / forwarded host headers.");
+  }
+  if (checkout.form && !isValidHttpUrl(checkout.form.action)) {
+    throw new ApiError(500, "Could not build a valid gateway address. Please check the server's APP_URL / forwarded host headers.");
+  }
+  return checkout;
+}
+
+async function buildCheckout(user: SessionUser, provider: Provider, amount: number, req: Request): Promise<Checkout> {
   if (!providerStatus()[provider]?.enabled) throw new ApiError(400, `${provider} is not configured on this server`);
   if (amount < 1000 || amount > 50_000_000) throw new ApiError(422, "Amount must be between Rs. 1,000 and Rs. 5 Crore");
   const reference = `MLT${Date.now()}${randomBytes(3).toString("hex").toUpperCase()}`;
   await db.insert(paymentIntents).values({ reference, userId: user.id, provider, amount: r2(amount) });
-  const base = appUrl(req);
+  // The visitor's own host (x-forwarded-host / host) decides the origin — never the bind address
+  // the server listens on, and never a hardcoded localhost:3000.
+  const base = publicOrigin(req);
   const successUrl = `${base}/wallet?payment=${reference}`;
 
-  if (provider === "sandbox") return { reference, redirectUrl: `${base}/pay/sandbox/${reference}` };
+  if (provider === "sandbox") return { reference, redirectUrl: absoluteUrl(req, `/pay/sandbox/${reference}`) };
 
   if (provider === "stripe") {
     const body = new URLSearchParams({
@@ -53,6 +71,7 @@ export async function createCheckout(user: SessionUser, provider: Provider, amou
     });
     const data = (await res.json()) as { id?: string; url?: string; error?: { message: string } };
     if (!res.ok || !data.url) throw new ApiError(502, `Stripe error: ${data.error?.message ?? res.status}`);
+    if (!isValidHttpUrl(data.url)) throw new ApiError(502, "Stripe returned an invalid checkout URL");
     await db.update(paymentIntents).set({ providerRef: data.id }).where(eq(paymentIntents.reference, reference));
     return { reference, redirectUrl: data.url };
   }

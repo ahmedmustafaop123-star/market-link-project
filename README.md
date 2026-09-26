@@ -118,6 +118,7 @@ Install Docker Desktop, then double-click `start-docker.bat` (or run `docker com
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Admin login created on first start (default `ahmed.mustafa@admin.com` / `password123`). |
 | `SESSION_SECRET` | Long random text used to sign login cookies. |
 | `COOKIE_SECURE` | `true` when served over HTTPS. |
+| `APP_URL` | Public base URL used in payment redirects, OAuth callbacks and email links. **Leave empty** (recommended): the app derives it from the request (`x-forwarded-host` / `host`), so links work on localhost, LAN, tunnels and cloud hosts. Set it only if your proxy does not forward the original host. Bind addresses such as `http://0.0.0.0:3000` are ignored. `NEXT_PUBLIC_APP_URL`, `PUBLIC_URL` and `BASE_URL` are accepted as aliases. |
 | `PORT` | Preferred port (default 3000). |
 
 ## Developer commands
@@ -126,7 +127,13 @@ Install Docker Desktop, then double-click `start-docker.bat` (or run `docker com
 node scripts/serve.cjs      # build if needed + start + open browser
 npm run dev                 # development mode with hot reload
 npm run build && npm start  # plain production build / start
+node scripts/verify-payment-redirect.cjs --full   # while the server runs: check the buyer escrow redirect end-to-end
 ```
+
+`verify-payment-redirect.cjs` signs in with the demo buyer, starts a test-gateway top-up and asserts the
+redirect is an absolute https URL on the host you are using (never `0.0.0.0`, `::` or a hardcoded
+`localhost`) — the regression guard for the `ERR_ADDRESS_INVALID` escrow redirect bug. Pass
+`--host=my-domain.example` to simulate the public Host header your proxy forwards.
 
 Health check: `GET /api/health` → `{"ok":true}` · Docs: `/docs` · Hosting page: `/deploy`
 Stack: Next.js 16 · React 19 · Tailwind CSS 4 · PostgreSQL / PGlite · Drizzle ORM · Recharts

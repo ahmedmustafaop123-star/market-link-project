@@ -1,3 +1,4 @@
+import { absoluteUrl } from "@/lib/base-url";
 import { completeIntent, easypaisaInquire } from "@/lib/services/payments";
 
 export const dynamic = "force-dynamic";
@@ -7,13 +8,13 @@ export const dynamic = "force-dynamic";
  * The result is confirmed server-to-server via the Inquire Transaction API before the wallet is credited.
  */
 async function handleCallback(req: Request, params: URLSearchParams) {
-  const base = (process.env.APP_URL || new URL(req.url).origin).replace(/\/$/, "");
   const ref = params.get("orderRefNumber") || params.get("orderRefNum") || "";
   const authToken = params.get("auth_token");
   if (authToken) {
     // Step 1 of the hosted flow: forward the token to Easypaisa's confirm page
     const confirm = process.env.PAYMENTS_MODE === "live" ? "https://easypay.easypaisa.com.pk/easypay/Confirm.jsf" : "https://easypaystg.easypaisa.com.pk/easypay/Confirm.jsf";
-    return Response.redirect(`${confirm}?auth_token=${encodeURIComponent(authToken)}&postBackURL=${encodeURIComponent(`${base}/api/payments/callback/easypaisa`)}`, 303);
+    const postBackURL = absoluteUrl(req, "/api/payments/callback/easypaisa");
+    return Response.redirect(`${confirm}?auth_token=${encodeURIComponent(authToken)}&postBackURL=${encodeURIComponent(postBackURL)}`, 303);
   }
   if (ref) {
     try {
@@ -24,7 +25,7 @@ async function handleCallback(req: Request, params: URLSearchParams) {
       console.error("[easypaisa callback]", e);
     }
   }
-  return Response.redirect(`${base}/wallet?payment=${encodeURIComponent(ref)}`, 303);
+  return Response.redirect(absoluteUrl(req, `/wallet?payment=${encodeURIComponent(ref)}`), 303);
 }
 
 export async function GET(req: Request) {

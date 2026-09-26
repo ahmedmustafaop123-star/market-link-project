@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+
+# next.js build output
+/.next/
+/out/
+
+# production builds
+/build
+
+# runtime data: built-in PostgreSQL (PGlite) demo database and logs
+/.data/
+
+# local env files (keep the template)
+.env
+.env*.local
+!.env.example
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-error.log*
+.vercel
