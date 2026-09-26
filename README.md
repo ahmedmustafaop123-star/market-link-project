@@ -85,6 +85,8 @@ Connect the phone to the same Wi-Fi and open the **"Phone / same Wi-Fi"** addres
 | Want a fresh start with new demo data | Stop the server, delete the `.data` folder, start again. |
 | Changed code / updated files | Run `start-windows.bat --rebuild` (or `node scripts/serve.cjs --rebuild`). |
 | Want to use your own PostgreSQL | Set `DATABASE_URL=postgresql://postgres:PASSWORD@localhost:5432/app_db` in `.env` (the database is created automatically). |
+| Page loads but looks broken / nothing clickable behind a tunnel or cloud preview (`npm run dev`) | Dev mode blocks its own scripts for unknown hosts. Either start the production server (`npm run build && npm start`, recommended — no such check) or add your host: `ALLOWED_DEV_ORIGINS=my-host.example.com npm run dev`. Cloud-preview hosts (`*.e2b.app`, cloudflared, localtunnel, ngrok) are already allowed in `next.config.ts`. |
+| Payment redirect says "Could not build a valid payment redirect URL" | The proxy in front of the app is not forwarding the original host. Set `APP_URL=https://your-domain` in `.env` and restart. |
 
 ---
 
